@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dolphin AI Skipper
  * Description: AI-powered sailing advisor with Voice AI, Interactive Maps, Living Backgrounds & Seasickness Gauge. Modern 2026 UI/UX.
- * Version: 7.0.0
+ * Version: 7.0.1
  * Author: Coding Partner
  */
 
@@ -268,8 +268,8 @@ class DolphinAISkipper {
         wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
         wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', false);
 
-        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css', [], '7.0.0');
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', ['leaflet-js'], '7.0.0', true);
+        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css', [], '7.0.1');
+        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', ['leaflet-js'], '7.0.1', true);
         wp_localize_script('das-script', 'das_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('das_nonce')
@@ -278,7 +278,7 @@ class DolphinAISkipper {
 
     public function enqueue_admin_assets($hook) {
         if ($hook !== 'safari_route_page_das-settings') return;
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '7.0.0', true);
+        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '7.0.1', true);
         wp_localize_script('das-script', 'das_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('das_nonce')
