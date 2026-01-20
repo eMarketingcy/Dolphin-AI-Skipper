@@ -1,6 +1,6 @@
 /**
  * Dolphin AI Skipper - Main Script
- * Handles: Admin API Testing, Frontend Widget Toggle, AJAX Requests
+ * Handles: Admin API Testing, Frontend Widget Toggle, AJAX Requests, Date Validation
  * Tech: Vanilla JS (No jQuery), Fetch API
  */
 
@@ -80,9 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultArea = document.getElementById('das-result');
         const contentArea = resultArea.querySelector('.das-content');
         const submitBtn = form.querySelector('button[type="submit"]');
+        const dateInput = document.getElementById('das-date');
 
-        // --- A. TOGGLE VISIBILITY ---
-        
+        // --- A. DATE PICKER RESTRICTION ---
+        // Prevent users from selecting past dates
+        if(dateInput) {
+            const now = new Date();
+            // Adjust for timezone offset to get local ISO string correctly
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            dateInput.min = now.toISOString().slice(0, 16);
+        }
+
+        // --- B. TOGGLE VISIBILITY ---
         const toggleWidget = () => {
             wrapper.classList.toggle('is-open');
         };
@@ -101,8 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- B. FORM SUBMISSION (The Brain) ---
-        
+        // --- C. FORM SUBMISSION (The Brain) ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -117,10 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Set Loading UI
-            submitBtn.textContent = 'Captain is checking charts...';
+            submitBtn.textContent = 'Calculating optimal route...';
             submitBtn.disabled = true;
             resultArea.style.display = 'block';
-            contentArea.innerHTML = '<span class="das-pulse">Contacting Satellite Weather Systems...</span>';
+            contentArea.innerHTML = '<span class="das-pulse">Captain is checking wind, waves, and alternative dates...</span>';
 
             // Prepare Data
             const formData = new FormData();
