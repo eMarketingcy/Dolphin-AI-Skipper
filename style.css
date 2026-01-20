@@ -1,62 +1,300 @@
+/**
+ * Dolphin AI Skipper - Style Sheet
+ * Approach: Mobile-First, Modern Glassmorphism (2026 Design)
+ */
+
 :root {
-    --das-primary: #00d2ff;
-    --das-secondary: #3a7bd5;
-    --das-glass-bg: rgba(15, 23, 42, 0.85); /* Darker for better contrast */
-    --das-glass-border: rgba(255, 255, 255, 0.1);
+    /* Color Palette - Cyprus Sea Theme */
+    --das-primary: #00d2ff;       /* Bright Cyan */
+    --das-secondary: #3a7bd5;     /* Deep Ocean Blue */
+    --das-accent: #00f260;        /* Success Green */
+    --das-danger: #ff5f6d;        /* Error Red */
+    
+    /* Glassmorphism Variables */
+    --das-glass-bg: rgba(15, 23, 42, 0.85); /* Dark blue-grey base */
+    --das-glass-border: rgba(255, 255, 255, 0.12);
     --das-text: #ffffff;
+    --das-text-muted: rgba(255, 255, 255, 0.7);
+    
+    /* Spacing & Layout */
+    --das-radius: 20px;
+    --das-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    --das-z-index: 99999;
 }
 
+/* =========================================
+   1. FLOATING TOGGLE BUTTON (The Anchor)
+   ========================================= */
 #das-widget-toggle {
-    position: fixed; bottom: 25px; right: 25px; z-index: 99999;
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: var(--das-z-index);
+    
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
     background: linear-gradient(135deg, var(--das-secondary), var(--das-primary));
-    border: none; border-radius: 50px; padding: 12px 24px;
-    display: flex; align-items: center; gap: 10px;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 26px;
+    
+    color: white;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    
     box-shadow: 0 10px 25px rgba(0, 210, 255, 0.3);
-    cursor: pointer; transition: transform 0.2s;
-    color: white; font-family: 'Inter', sans-serif; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-#das-widget-toggle:hover { transform: scale(1.05); }
 
+#das-widget-toggle:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(0, 210, 255, 0.5);
+}
+
+.das-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* =========================================
+   2. THE WIDGET CONTAINER (Wrapper)
+   ========================================= */
 .das-wrapper {
-    position: fixed; bottom: 90px; right: 25px; width: 360px; z-index: 99998;
-    opacity: 0; transform: translateY(20px); pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: fixed;
+    bottom: 100px;
+    right: 25px;
+    width: 380px;
+    max-width: 90vw;
+    z-index: 99998;
+    
     font-family: 'Inter', sans-serif;
+    
+    /* Initial State: Hidden & Slightly down */
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    pointer-events: none;
+    
+    /* Smooth Spring Animation */
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.das-wrapper.is-open { opacity: 1; transform: translateY(0); pointer-events: all; }
 
+/* State: Open */
+.das-wrapper.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+/* =========================================
+   3. GLASS CARD DESIGN
+   ========================================= */
 .das-glass-card {
     background: var(--das-glass-bg);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    /* The Blur Effect */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
     border: 1px solid var(--das-glass-border);
-    border-radius: 20px; padding: 1.5rem; color: #fff;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border-radius: var(--das-radius);
+    padding: 2rem;
+    
+    box-shadow: var(--das-shadow);
+    color: var(--das-text);
+    overflow: hidden;
 }
 
-.das-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
-.das-header h2 { margin:0; font-size: 1.2rem; background: -webkit-linear-gradient(#fff, #99f6e4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-#das-close-btn { background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer; }
-
-.das-input-group { margin-bottom: 1rem; }
-.das-input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.8; }
-.das-input-group select, .das-input-group input {
-    width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(0,0,0,0.4); color: #fff; outline: none;
+/* Header Section */
+.das-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--das-glass-border);
+    padding-bottom: 1rem;
 }
 
+.das-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    /* Gradient Text */
+    background: linear-gradient(to right, #ffffff, #a5f3fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#das-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--das-text-muted);
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+}
+
+#das-close-btn:hover {
+    color: #fff;
+}
+
+/* =========================================
+   4. FORM ELEMENTS
+   ========================================= */
+.das-input-group {
+    margin-bottom: 1.25rem;
+}
+
+.das-input-group label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    color: var(--das-text-muted);
+}
+
+.das-input-group select,
+.das-input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--das-glass-border);
+    
+    /* Dark translucent background for inputs */
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    
+    /* Remove default appearance */
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Add custom arrow for select */
+.das-input-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.das-input-group select:focus,
+.das-input-group input:focus {
+    border-color: var(--das-primary);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* The Action Button */
 .das-btn-glow {
-    width: 100%; padding: 12px; border: none; border-radius: 12px;
-    background: linear-gradient(to right, var(--das-secondary), var(--das-primary));
-    color: white; font-weight: bold; cursor: pointer;
+    width: 100%;
+    padding: 14px;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: 12px;
+    
+    background: linear-gradient(135deg, var(--das-primary), var(--das-secondary));
+    color: white;
+    font-weight: 700;
+    font-size: 1.05rem;
+    
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-.das-btn-glow:disabled { opacity: 0.7; }
 
-.das-result-area { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); line-height: 1.5; font-size: 0.95rem; }
-.das-pulse { animation: das-pulse-anim 1.5s infinite; color: var(--das-primary); }
-@keyframes das-pulse-anim { 0% {opacity:0.5;} 50% {opacity:1;} 100% {opacity:0.5;} }
+.das-btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+}
 
+.das-btn-glow:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    background: #555;
+}
+
+/* =========================================
+   5. RESULTS AREA & ANIMATIONS
+   ========================================= */
+.das-result-area {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--das-glass-border);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    animation: das-fade-in 0.5s ease-out;
+}
+
+.das-result-area b {
+    color: var(--das-primary);
+}
+
+/* Heartbeat / Pulse Animation for Loading */
+.das-pulse {
+    display: inline-block;
+    font-weight: 600;
+    color: var(--das-primary);
+    animation: das-pulse-anim 1.5s infinite ease-in-out;
+}
+
+@keyframes das-pulse-anim {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+@keyframes das-fade-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Admin Tester Feedback Colors */
+.das-success { color: var(--das-accent); font-weight: bold; }
+.das-error { color: var(--das-danger); font-weight: bold; }
+
+/* =========================================
+   6. MOBILE RESPONSIVENESS (Bottom Sheet)
+   ========================================= */
 @media (max-width: 480px) {
-    .das-wrapper { width: 100%; right: 0; bottom: 0; border-radius: 20px 20px 0 0; transform: translateY(100%); }
-    .das-glass-card { border-radius: 20px 20px 0 0; border-bottom: none; padding-bottom: 40px; }
-    .das-wrapper.is-open { transform: translateY(0); }
+    #das-widget-toggle {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+    }
+
+    .das-wrapper {
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        
+        /* Slide up from bottom */
+        transform: translateY(100%);
+        border-radius: 24px 24px 0 0;
+    }
+    
+    .das-wrapper.is-open {
+        transform: translateY(0);
+    }
+
+    .das-glass-card {
+        border-radius: 24px 24px 0 0;
+        border-bottom: none;
+        border-left: none;
+        border-right: none;
+        padding: 1.5rem 1.5rem 3rem 1.5rem; /* Extra padding at bottom for safe area */
+    }
+    
+    .das-header h2 {
+        font-size: 1.2rem;
+    }
 }
