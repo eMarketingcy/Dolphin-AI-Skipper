@@ -19,13 +19,14 @@
     --das-bg-storm: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     --das-bg-rain: linear-gradient(135deg, #4b79a1 0%, #283e51 100%);
     --das-bg-sunset: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-    --das-bg-default: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+    --das-bg-default: linear-gradient(135deg, rgba(51, 65, 85, 0.75) 0%, rgba(71, 85, 105, 0.7) 100%);
 
-    /* Glassmorphism Variables */
-    --das-glass-bg: rgba(15, 23, 42, 0.85);
-    --das-glass-border: rgba(255, 255, 255, 0.12);
+    /* Glassmorphism Variables - Improved for readability */
+    --das-glass-bg: rgba(30, 41, 59, 0.75);
+    --das-glass-bg-light: rgba(51, 65, 85, 0.6);
+    --das-glass-border: rgba(255, 255, 255, 0.18);
     --das-text: #ffffff;
-    --das-text-muted: rgba(255, 255, 255, 0.7);
+    --das-text-muted: rgba(255, 255, 255, 0.85);
 
     /* Spacing & Layout */
     --das-radius: 24px;
@@ -139,10 +140,19 @@
 
     box-shadow: var(--das-shadow);
     color: var(--das-text);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 80vh;
     position: relative;
 
     transition: background 0.8s ease, box-shadow 0.3s ease;
+
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+
+    /* Custom scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 210, 255, 0.5) rgba(255, 255, 255, 0.1);
 }
 
 /* Living Background States */
@@ -167,6 +177,26 @@
 
 .das-glass-card.weather-sunset {
     background: var(--das-bg-sunset);
+}
+
+/* Custom Scrollbar for Webkit Browsers */
+.das-glass-card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.das-glass-card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.das-glass-card::-webkit-scrollbar-thumb {
+    background: rgba(0, 210, 255, 0.5);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.das-glass-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 210, 255, 0.8);
 }
 
 .das-glass-card:hover {
@@ -295,12 +325,12 @@
 
 .das-input-group label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 0.5rem;
-    color: var(--das-text-muted);
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
 }
 
 .das-input-group select,
@@ -310,8 +340,9 @@
     border-radius: var(--das-radius-sm);
     border: 1px solid var(--das-glass-border);
 
-    /* Dark translucent background with gradient */
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
+    /* Lighter translucent background with gradient for better readability */
+    background: linear-gradient(135deg, rgba(71, 85, 105, 0.5), rgba(51, 65, 85, 0.4));
+    backdrop-filter: blur(8px);
     color: #fff;
     font-size: 1rem;
     font-weight: 500;
@@ -335,8 +366,8 @@
 .das-input-group select:focus,
 .das-input-group input:focus {
     border-color: var(--das-primary);
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4));
-    box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.1);
+    background: linear-gradient(135deg, rgba(71, 85, 105, 0.7), rgba(51, 65, 85, 0.6));
+    box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.2);
 }
 
 /* The Action Button (Neon Glow Effect) */
@@ -402,7 +433,8 @@
 .das-gauge-container {
     margin-top: 1.5rem;
     padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--das-glass-bg-light);
+    backdrop-filter: blur(10px);
     border-radius: var(--das-radius-sm);
     border: 1px solid var(--das-glass-border);
     text-align: center;
@@ -410,10 +442,10 @@
 }
 
 .das-gauge-label {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--das-text-muted);
+    color: rgba(255, 255, 255, 0.95);
     margin-bottom: 1rem;
     font-weight: 700;
 }
@@ -453,12 +485,14 @@
 .das-gauge-advice {
     margin-top: 1rem;
     padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(71, 85, 105, 0.5);
+    backdrop-filter: blur(8px);
     border-radius: 12px;
     border-left: 3px solid var(--das-primary);
-    font-size: 0.9rem;
-    line-height: 1.5;
+    font-size: 0.95rem;
+    line-height: 1.6;
     color: var(--das-text);
+    font-weight: 500;
     text-align: left;
     animation: das-fade-in 0.6s ease-out 0.3s both;
 }
@@ -477,8 +511,9 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--das-text-muted);
+    font-weight: 500;
     flex: 1;
 }
 
@@ -509,7 +544,8 @@
     border-radius: var(--das-radius-sm);
     overflow: hidden;
     border: 1px solid var(--das-glass-border);
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--das-glass-bg-light);
+    backdrop-filter: blur(10px);
     animation: das-slide-down 0.5s ease-out;
 }
 
@@ -518,7 +554,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(71, 85, 105, 0.6);
+    backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--das-glass-border);
 }
 
@@ -585,9 +622,12 @@
 
 .das-content {
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(71, 85, 105, 0.4);
+    backdrop-filter: blur(8px);
     border-radius: var(--das-radius-sm);
     border-left: 3px solid var(--das-primary);
+    font-size: 1rem;
+    line-height: 1.7;
 }
 
 /* Heartbeat / Pulse Animation for Loading */
