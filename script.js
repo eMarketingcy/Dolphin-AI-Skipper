@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         form.dispatchEvent(new Event('submit'));
                     }, 1000);
                 } else {
-                    voiceFeedback.innerHTML = `<span class="das-error">❌ Route "${spokenName}" not found. Try again.</span>';
+                    voiceFeedback.innerHTML = `<span class="das-error">❌ Route "${spokenName}" not found. Try again.</span>`;
                     setTimeout(() => {
                         voiceFeedback.style.display = 'none';
                     }, 3000);
