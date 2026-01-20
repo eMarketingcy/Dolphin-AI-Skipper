@@ -1,100 +1,81 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // =========================================================
-    // 1. ADMIN PANEL LOGIC (Only runs if on settings page)
-    // =========================================================
+    // --- ADMIN TEST LOGIC ---
     const testBtn = document.getElementById('das-test-btn');
     if (testBtn) {
         testBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            const resultDiv = document.getElementById('das-test-result');
-            const owmKey = document.getElementById('das_owm_key').value;
-            const geminiKey = document.getElementById('das_gemini_key').value;
-
-            if(!owmKey || !geminiKey) {
-                resultDiv.innerHTML = '<span class="das-error">Please enter both keys before testing.</span>';
-                return;
-            }
-
-            testBtn.textContent = 'Testing...';
-            testBtn.disabled = true;
-            resultDiv.innerHTML = 'Pinging Satellites...';
-
-            const formData = new FormData();
-            formData.append('action', 'das_test_apis');
-            formData.append('owm_key', owmKey);
-            formData.append('gemini_key', geminiKey);
-            formData.append('nonce', das_vars.nonce);
-
+            const resDiv = document.getElementById('das-test-result');
+            const owm = document.getElementById('das_owm_key').value;
+            const gem = document.getElementById('das_gemini_key').value;
+            
+            if(!owm || !gem) { resDiv.innerHTML = '<span class="das-error">Enter keys first.</span>'; return; }
+            
+            testBtn.innerText = 'Testing...';
+            resDiv.innerHTML = 'Connecting...';
+            
+            const fd = new FormData();
+            fd.append('action', 'das_test_apis');
+            fd.append('owm_key', owm);
+            fd.append('gemini_key', gem);
+            fd.append('nonce', das_vars.nonce);
+            
             try {
-                const response = await fetch(das_vars.ajax_url, { method: 'POST', body: formData });
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Join array of messages with line breaks
-                    resultDiv.innerHTML = data.data.messages.join('<br>');
-                } else {
-                    resultDiv.innerHTML = '<span class="das-error">Server Error.</span>';
-                }
-            } catch (err) {
-                resultDiv.innerHTML = '<span class="das-error">AJAX Error.</span>';
-            } finally {
-                testBtn.textContent = 'Test API Connections';
-                testBtn.disabled = false;
+                const r = await fetch(das_vars.ajax_url, {method:'POST', body:fd});
+                const d = await r.json();
+                resDiv.innerHTML = d.success ? d.data.messages.join('<br>') : 'Server Error';
+            } catch(err) {
+                resDiv.innerHTML = '<span class="das-error">AJAX Error</span>';
             }
+            testBtn.innerText = 'Test Connections';
         });
     }
 
-    // =========================================================
-    // 2. FRONTEND WIDGET LOGIC (Only runs if widget exists)
-    // =========================================================
-    const toggleBtn = document.getElementById('das-widget-toggle');
-    if (toggleBtn) {
-        const closeBtn = document.getElementById('das-close-btn');
-        const wrapper = document.getElementById('das-interface');
+    // --- FRONTEND WIDGET LOGIC ---
+    const toggle = document.getElementById('das-widget-toggle');
+    if (toggle) {
+        const wrap = document.getElementById('das-interface');
         const form = document.getElementById('das-form');
+        const close = document.getElementById('das-close-btn');
         
-        const toggleWidget = () => wrapper.classList.toggle('is-open');
-
-        toggleBtn.addEventListener('click', toggleWidget);
-        closeBtn.addEventListener('click', toggleWidget);
+        const toggleFn = () => wrap.classList.toggle('is-open');
+        toggle.addEventListener('click', toggleFn);
+        close.addEventListener('click', toggleFn);
+        
         document.addEventListener('click', (e) => {
-            if (wrapper.classList.contains('is-open') && !wrapper.contains(e.target) && !toggleBtn.contains(e.target)) {
-                wrapper.classList.remove('is-open');
+            if(wrap.classList.contains('is-open') && !wrap.contains(e.target) && !toggle.contains(e.target)) {
+                wrap.classList.remove('is-open');
             }
         });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const routeId = document.getElementById('das-route').value;
-            const dateVal = document.getElementById('das-date').value;
             const btn = form.querySelector('button');
-            const content = document.querySelector('.das-content');
-            const result = document.getElementById('das-result');
+            const out = document.querySelector('.das-content');
+            const resArea = document.getElementById('das-result');
+            
+            const rId = document.getElementById('das-route').value;
+            const dt = document.getElementById('das-date').value;
+            if(!rId || !dt) return;
 
-            if (!routeId || !dateVal) return;
+            btn.disabled = true; btn.innerText = 'Analyzing...';
+            resArea.style.display = 'block';
+            out.innerHTML = '<span class="das-pulse">Captain is checking the charts...</span>';
 
-            btn.textContent = 'Connecting...';
-            btn.disabled = true;
-            result.style.display = 'block';
-            content.innerHTML = '<span class="das-pulse">Analyzing...</span>';
-
-            const formData = new FormData();
-            formData.append('action', 'das_check_sailing');
-            formData.append('route_id', routeId);
-            formData.append('date', dateVal);
-            formData.append('nonce', das_vars.nonce);
+            const fd = new FormData();
+            fd.append('action', 'das_check_sailing');
+            fd.append('route_id', rId);
+            fd.append('date', dt);
+            fd.append('nonce', das_vars.nonce);
 
             try {
-                const response = await fetch(das_vars.ajax_url, { method: 'POST', body: formData });
-                const data = await response.json();
-                content.innerHTML = data.success ? data.data.analysis : data.data.message;
-            } catch {
-                content.innerHTML = 'Connection Error.';
-            } finally {
-                btn.textContent = 'Ask AI Captain';
-                btn.disabled = false;
+                const r = await fetch(das_vars.ajax_url, {method:'POST', body:fd});
+                const d = await r.json();
+                out.innerHTML = d.success ? d.data.analysis : d.data.message;
+            } catch(err) {
+                out.innerHTML = 'Connection failed.';
             }
+            btn.disabled = false; btn.innerText = 'Ask AI Captain';
         });
     }
 });
