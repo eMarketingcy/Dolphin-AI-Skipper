@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Dolphin AI Skipper
- * Description: AI-powered sailing advisor. Includes Admin Settings, API Tester & Smart Navigation Logic.
- * Version: 6.0.0
+ * Description: AI-powered sailing advisor with Voice AI, Interactive Maps, Living Backgrounds & Seasickness Gauge. Modern 2026 UI/UX.
+ * Version: 7.0.0
  * Author: Coding Partner
  */
 
@@ -73,8 +73,22 @@ class DolphinAISkipper {
 
         // 4. Send everything to AI
         $advice = $this->ask_gemini_smart($target_weather, $alternative, $user_date_str, $gemini_key);
-        
-        wp_send_json_success(['analysis' => $advice]);
+
+        // 5. Prepare additional data for frontend features
+        $weather_condition = strtolower($target_weather['weather'][0]['main']);
+        $route_title = get_the_title($route_id);
+
+        // Calculate seasickness risk (0-100) based on wind speed and conditions
+        $seasickness_risk = $this->calculate_seasickness_risk($wind_speed, $weather_condition);
+
+        wp_send_json_success([
+            'analysis' => $advice,
+            'weather_condition' => $weather_condition,
+            'wind_speed' => $wind_speed,
+            'seasickness_risk' => $seasickness_risk,
+            'coordinates' => ['lat' => floatval($lat), 'lon' => floatval($lon)],
+            'route_name' => $route_title
+        ]);
     }
 
     // --- ALGORITHMS ---
@@ -107,11 +121,11 @@ class DolphinAISkipper {
             // Logic: Wind < 5m/s AND No Rain
             $wind = $item['wind']['speed'];
             $main = strtolower($item['weather'][0]['main']);
-            
+
             if ($wind < 5.0 && strpos($main, 'rain') === false) {
                 // How far is this from the user's original bad choice?
                 $time_dist = abs($item['dt'] - $current_bad_ts);
-                
+
                 // We prefer future dates (don't suggest the past), but within reasonable range
                 if ($time_dist < $min_time_dist) {
                     $min_time_dist = $time_dist;
@@ -120,6 +134,35 @@ class DolphinAISkipper {
             }
         }
         return $best_slot;
+    }
+
+    // Calculate Seasickness Risk (0-100) based on wind and weather
+    private function calculate_seasickness_risk($wind_speed, $weather_condition) {
+        $risk = 0;
+
+        // Base risk from wind speed (0-60 points)
+        if ($wind_speed < 3) {
+            $risk = 5;  // Calm
+        } elseif ($wind_speed < 5) {
+            $risk = 15; // Light breeze
+        } elseif ($wind_speed < 7) {
+            $risk = 35; // Moderate
+        } elseif ($wind_speed < 10) {
+            $risk = 60; // Choppy
+        } else {
+            $risk = 85; // Rough
+        }
+
+        // Add weather condition penalties
+        if (strpos($weather_condition, 'storm') !== false) {
+            $risk = min(100, $risk + 30);
+        } elseif (strpos($weather_condition, 'rain') !== false) {
+            $risk = min(100, $risk + 15);
+        } elseif (strpos($weather_condition, 'cloud') !== false) {
+            $risk = min(100, $risk + 5);
+        }
+
+        return min(100, max(0, $risk));
     }
 
     // --- AI INTEGRATION ---
@@ -217,8 +260,12 @@ class DolphinAISkipper {
     // 2. ASSETS & CPT
     // =========================================================================
     public function enqueue_frontend_assets() {
-        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css', [], '6.0');
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '6.0', true);
+        // Leaflet.js for Interactive Maps
+        wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
+        wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', false);
+
+        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css', [], '7.0.0');
+        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', ['leaflet-js'], '7.0.0', true);
         wp_localize_script('das-script', 'das_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('das_nonce')
@@ -227,7 +274,7 @@ class DolphinAISkipper {
 
     public function enqueue_admin_assets($hook) {
         if ($hook !== 'safari_route_page_das-settings') return;
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '6.0', true);
+        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '7.0.0', true);
         wp_localize_script('das-script', 'das_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('das_nonce')
@@ -257,15 +304,32 @@ class DolphinAISkipper {
         <div id="das-interface" class="das-wrapper">
             <div class="das-glass-card">
                 <div class="das-header">
-                    <h2>🐬 Captain's Forecast</h2><button id="das-close-btn">&times;</button>
+                    <h2>🐬 Captain's Forecast</h2>
+                    <div class="das-header-actions">
+                        <button id="das-voice-btn" class="das-voice-btn" title="Voice Command" aria-label="Activate Voice Control">
+                            🎤
+                        </button>
+                        <button id="das-close-btn" aria-label="Close">&times;</button>
+                    </div>
                 </div>
+
+                <!-- Voice Feedback -->
+                <div id="das-voice-feedback" class="das-voice-feedback" style="display:none;">
+                    <span class="das-pulse">🎙️ Listening...</span>
+                </div>
+
                 <form id="das-form">
                     <div class="das-input-group">
                         <label>Destination</label>
                         <select id="das-route" required>
                             <option value="">Select Route...</option>
                             <?php foreach($routes as $route): ?>
-                                <option value="<?php echo esc_attr($route->ID); ?>"><?php echo esc_html($route->post_title); ?></option>
+                                <option value="<?php echo esc_attr($route->ID); ?>"
+                                        data-name="<?php echo esc_attr($route->post_title); ?>"
+                                        data-lat="<?php echo esc_attr(get_post_meta($route->ID, 'latitude', true)); ?>"
+                                        data-lon="<?php echo esc_attr(get_post_meta($route->ID, 'longitude', true)); ?>">
+                                    <?php echo esc_html($route->post_title); ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -275,7 +339,44 @@ class DolphinAISkipper {
                     </div>
                     <button type="submit" class="das-btn-glow">Ask AI Captain</button>
                 </form>
-                <div id="das-result" class="das-result-area" style="display:none;"><div class="das-content"></div></div>
+
+                <!-- Seasickness Gauge -->
+                <div id="das-seasickness-gauge" class="das-gauge-container" style="display:none;">
+                    <div class="das-gauge-label">Seasickness Risk</div>
+                    <div class="das-gauge">
+                        <svg viewBox="0 0 200 120" class="das-gauge-svg">
+                            <!-- Gauge Background Arc -->
+                            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12" stroke-linecap="round"/>
+                            <!-- Gauge Progress Arc -->
+                            <path id="das-gauge-progress" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+                            <!-- Gradient Definition -->
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00f260;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff5f6d;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Value Text -->
+                            <text id="das-gauge-value" x="100" y="85" text-anchor="middle" font-size="32" font-weight="bold" fill="#fff">0</text>
+                            <text x="100" y="105" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.6)" id="das-gauge-status">CALM</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Interactive Map -->
+                <div id="das-map-container" class="das-map-container" style="display:none;">
+                    <div class="das-map-header">
+                        <span id="das-map-title">📍 Route Location</span>
+                        <button id="das-map-close" class="das-map-close-btn">&times;</button>
+                    </div>
+                    <div id="das-map" class="das-map"></div>
+                </div>
+
+                <!-- Results Area -->
+                <div id="das-result" class="das-result-area" style="display:none;">
+                    <div class="das-content"></div>
+                </div>
             </div>
         </div>
         <?php
