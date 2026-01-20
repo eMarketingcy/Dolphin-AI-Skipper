@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Dolphin AI Skipper
- * Description: AI-powered sailing advisor with Voice AI, Interactive Maps, Living Backgrounds & Seasickness Gauge. Modern 2026 UI/UX.
- * Version: 7.0.1
+ * Description: AI-powered sailing advisor with Voice AI, Interactive Maps, Living Backgrounds, Seasickness Gauge & Climate Mode. Modern 2026 UI/UX.
+ * Version: 7.1.0
  * Author: Coding Partner
  */
 
@@ -52,12 +52,22 @@ class DolphinAISkipper {
             wp_send_json_error(['message' => 'Configuration missing.']);
         }
 
-        // 1. Get the FULL 5-day forecast list
-        $forecast_list = $this->get_forecast_list($lat, $lon, $owm_key);
-        if(!$forecast_list) { wp_send_json_error(['message' => 'Weather satellites unavailable.']); }
+        // Check if Climate Mode is needed (> 5 days away)
+        $use_climate_mode = $this->is_climate_mode_required($user_ts);
 
-        // 2. Find User's Specific Slot using UTC timestamp
-        $target_weather = $this->find_closest_slot($forecast_list, $user_ts);
+        if ($use_climate_mode) {
+            // CLIMATE MODE: Use Seasonal Intelligence for long-term forecasts
+            $target_weather = $this->get_climate_forecast($user_ts);
+            $forecast_list = [$target_weather]; // Single item for consistency
+        } else {
+            // NORMAL MODE: Use OpenWeather API for near-term forecasts (≤ 5 days)
+            // 1. Get the FULL 5-day forecast list
+            $forecast_list = $this->get_forecast_list($lat, $lon, $owm_key);
+            if(!$forecast_list) { wp_send_json_error(['message' => 'Weather satellites unavailable.']); }
+
+            // 2. Find User's Specific Slot using UTC timestamp
+            $target_weather = $this->find_closest_slot($forecast_list, $user_ts);
+        }
 
         // 3. Analyze & Find Alternative if needed
         $alternative = null;
@@ -66,15 +76,18 @@ class DolphinAISkipper {
         // Define "Bad Weather" logic (e.g., Wind > 6m/s OR Rain)
         $wind_speed = $target_weather['wind']['speed'];
         $weather_main = strtolower($target_weather['weather'][0]['main']);
-        
+
         if ($wind_speed > 6.0 || strpos($weather_main, 'rain') !== false) {
             $is_bad_weather = true;
-            // Run Algorithm: Find closest "Good" slot
-            $alternative = $this->find_best_alternative($forecast_list, $user_ts);
+            // Only find alternatives in normal mode (not in climate mode)
+            if (!$use_climate_mode) {
+                // Run Algorithm: Find closest "Good" slot
+                $alternative = $this->find_best_alternative($forecast_list, $user_ts);
+            }
         }
 
         // 4. Send everything to AI (pass UTC timestamp for correct formatting)
-        $advice = $this->ask_gemini_smart($target_weather, $alternative, $user_ts, $gemini_key);
+        $advice = $this->ask_gemini_smart($target_weather, $alternative, $user_ts, $use_climate_mode, $gemini_key);
 
         // 5. Prepare additional data for frontend features
         $weather_condition = strtolower($target_weather['weather'][0]['main']);
@@ -89,11 +102,101 @@ class DolphinAISkipper {
             'wind_speed' => $wind_speed,
             'seasickness_risk' => $seasickness_risk,
             'coordinates' => ['lat' => floatval($lat), 'lon' => floatval($lon)],
-            'route_name' => $route_title
+            'route_name' => $route_title,
+            'climate_mode' => $use_climate_mode
         ]);
     }
 
     // --- ALGORITHMS ---
+
+    // Check if date is more than 5 days away (requires Climate Mode)
+    private function is_climate_mode_required($target_ts) {
+        $now = time();
+        $days_difference = ($target_ts - $now) / (60 * 60 * 24);
+        return $days_difference > 5;
+    }
+
+    // Seasonal Intelligence for Cyprus (Climate Mode for dates > 5 days)
+    private function get_climate_forecast($target_ts) {
+        // Get the target date components
+        $month = intval(gmdate('n', $target_ts)); // 1-12
+        $day = intval(gmdate('j', $target_ts));
+        $hour = intval(gmdate('H', $target_ts));
+
+        // Cyprus Climate Patterns (Mediterranean Climate)
+        // Based on historical averages for Cyprus
+
+        $climate_data = [
+            // Winter (December, January, February) - Mild, rainy season
+            12 => ['temp' => 15, 'temp_var' => 3, 'wind' => 5.5, 'wind_var' => 2, 'rain_chance' => 45, 'conditions' => ['Clear', 'Clouds', 'Rain']],
+            1  => ['temp' => 13, 'temp_var' => 3, 'wind' => 6.0, 'wind_var' => 2, 'rain_chance' => 50, 'conditions' => ['Clear', 'Clouds', 'Rain']],
+            2  => ['temp' => 14, 'temp_var' => 3, 'wind' => 5.5, 'wind_var' => 2, 'rain_chance' => 40, 'conditions' => ['Clear', 'Clouds', 'Rain']],
+
+            // Spring (March, April, May) - Mild, transitional
+            3  => ['temp' => 16, 'temp_var' => 3, 'wind' => 5.0, 'wind_var' => 2, 'rain_chance' => 30, 'conditions' => ['Clear', 'Clouds', 'Clouds']],
+            4  => ['temp' => 20, 'temp_var' => 3, 'wind' => 4.5, 'wind_var' => 1.5, 'rain_chance' => 20, 'conditions' => ['Clear', 'Clear', 'Clouds']],
+            5  => ['temp' => 24, 'temp_var' => 3, 'wind' => 4.0, 'wind_var' => 1.5, 'rain_chance' => 10, 'conditions' => ['Clear', 'Clear', 'Clouds']],
+
+            // Summer (June, July, August) - Hot, dry, stable
+            6  => ['temp' => 28, 'temp_var' => 2, 'wind' => 4.0, 'wind_var' => 1, 'rain_chance' => 5, 'conditions' => ['Clear', 'Clear', 'Clear']],
+            7  => ['temp' => 31, 'temp_var' => 2, 'wind' => 3.5, 'wind_var' => 1, 'rain_chance' => 2, 'conditions' => ['Clear', 'Clear', 'Clear']],
+            8  => ['temp' => 31, 'temp_var' => 2, 'wind' => 3.5, 'wind_var' => 1, 'rain_chance' => 2, 'conditions' => ['Clear', 'Clear', 'Clear']],
+
+            // Autumn (September, October, November) - Warm to mild
+            9  => ['temp' => 27, 'temp_var' => 2, 'wind' => 4.0, 'wind_var' => 1.5, 'rain_chance' => 10, 'conditions' => ['Clear', 'Clear', 'Clouds']],
+            10 => ['temp' => 23, 'temp_var' => 3, 'wind' => 4.5, 'wind_var' => 1.5, 'rain_chance' => 25, 'conditions' => ['Clear', 'Clouds', 'Clouds']],
+            11 => ['temp' => 19, 'temp_var' => 3, 'wind' => 5.0, 'wind_var' => 2, 'rain_chance' => 35, 'conditions' => ['Clear', 'Clouds', 'Rain']],
+        ];
+
+        $season_data = $climate_data[$month];
+
+        // Add some pseudo-random variation based on the date (deterministic for same date)
+        $seed = $day + $hour;
+        $temp_offset = (($seed * 7) % 7) - 3; // -3 to +3
+        $wind_offset = (($seed * 5) % 5) - 2; // -2 to +2
+
+        $temp = $season_data['temp'] + ($temp_offset * $season_data['temp_var'] / 3);
+        $wind = max(2.0, $season_data['wind'] + ($wind_offset * $season_data['wind_var'] / 2));
+
+        // Determine weather condition based on rain chance and seed
+        $rain_roll = ($seed * 13) % 100;
+        if ($rain_roll < $season_data['rain_chance']) {
+            $condition = 'Rain';
+            $description = 'light rain';
+        } else {
+            // Pick from available conditions based on seed
+            $cond_index = ($seed * 3) % count($season_data['conditions']);
+            $condition = $season_data['conditions'][$cond_index];
+            $description = $condition === 'Clear' ? 'clear sky' : 'scattered clouds';
+        }
+
+        // Return in OpenWeather API format for compatibility
+        return [
+            'dt' => $target_ts,
+            'main' => [
+                'temp' => round($temp, 1),
+                'feels_like' => round($temp - 1, 1),
+                'humidity' => 65,
+                'pressure' => 1013
+            ],
+            'weather' => [
+                [
+                    'main' => $condition,
+                    'description' => $description,
+                    'icon' => '01d'
+                ]
+            ],
+            'wind' => [
+                'speed' => round($wind, 1),
+                'deg' => 270,
+                'gust' => round($wind * 1.3, 1)
+            ],
+            'clouds' => [
+                'all' => $condition === 'Clouds' ? 50 : ($condition === 'Clear' ? 10 : 80)
+            ],
+            'climate_mode' => true // Flag to indicate this is from climate algorithm
+        ];
+    }
 
     // Get raw OWM list
     private function get_forecast_list($lat, $lon, $key) {
@@ -169,13 +272,18 @@ class DolphinAISkipper {
 
     // --- AI INTEGRATION ---
 
-    private function ask_gemini_smart($current, $alt, $user_timestamp, $key) {
+    private function ask_gemini_smart($current, $alt, $user_timestamp, $is_climate_mode, $key) {
         // Prepare Data for Prompt
         $c_desc = $current['weather'][0]['description'];
         $c_temp = round($current['main']['temp']);
         $c_wind = $current['wind']['speed'];
         // Format date from UTC timestamp (use gmdate to avoid timezone issues)
         $c_date = gmdate('d M H:i', $user_timestamp);
+
+        // Add climate mode indicator
+        $mode_text = $is_climate_mode
+            ? "DATA SOURCE: Seasonal Intelligence (based on Cyprus historical climate averages). This is a long-term forecast >5 days away."
+            : "DATA SOURCE: Live Weather API.";
 
         $alt_text = "No better alternative found nearby.";
         if ($alt) {
@@ -188,16 +296,18 @@ class DolphinAISkipper {
         $prompt = "
         Role: Expert Cypriot Boat Captain.
         User Request: $c_date.
+        $mode_text
         Current Forecast for that time: Sky: $c_desc, Temp: {$c_temp}C, Wind: {$c_wind} m/s.
         Alternative Data: $alt_text
 
         Task:
-        1. If wind > 6m/s, explicitly warn the user it will be rough/bumpy.
-        2. If you have a 'BETTER OPTION' in the data, strictly recommend that date/time instead and explain why (e.g. 'Smoother seas').
-        3. If weather is good, just say 'Perfect conditions'.
-        
-        Tone: Professional, helpful, concise. 
-        Format: HTML. Use <strong style='color:#00d2ff'> for dates. Max 60 words.
+        1. If using Seasonal Intelligence, mention this is a climate-based prediction for long-term planning.
+        2. If wind > 6m/s, explicitly warn the user it will be rough/bumpy.
+        3. If you have a 'BETTER OPTION' in the data, strictly recommend that date/time instead and explain why (e.g. 'Smoother seas').
+        4. If weather is good, just say 'Perfect conditions'.
+
+        Tone: Professional, helpful, concise.
+        Format: HTML. Use <strong style='color:#00d2ff'> for dates. Max 70 words.
         ";
 
         return $this->ask_gemini_raw($prompt, $key);
@@ -268,8 +378,8 @@ class DolphinAISkipper {
         wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
         wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', false);
 
-        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css', [], '7.0.1');
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', ['leaflet-js'], '7.0.1', true);
+        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css', [], '7.1.0');
+        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', ['leaflet-js'], '7.1.0', true);
         wp_localize_script('das-script', 'das_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('das_nonce')
@@ -278,7 +388,7 @@ class DolphinAISkipper {
 
     public function enqueue_admin_assets($hook) {
         if ($hook !== 'safari_route_page_das-settings') return;
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '7.0.1', true);
+        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '7.1.0', true);
         wp_localize_script('das-script', 'das_vars', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('das_nonce')

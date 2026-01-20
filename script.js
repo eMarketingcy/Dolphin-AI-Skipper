@@ -1,8 +1,8 @@
 /**
- * Dolphin AI Skipper - Main Script v7.0.1
- * Features: Voice AI, Interactive Maps, Living Backgrounds, Seasickness Gauge
+ * Dolphin AI Skipper - Main Script v7.1.0
+ * Features: Voice AI, Interactive Maps, Living Backgrounds, Seasickness Gauge, Climate Mode
  * Tech: Vanilla JS, Web Speech API, Leaflet.js
- * v7.0.1: Fixed weather background not updating - added proper condition mapping
+ * v7.1.0: Added Climate Mode for long-term forecasts (>5 days) using Cyprus seasonal intelligence
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -258,6 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // 1. Display AI Analysis
                     contentArea.innerHTML = result.analysis;
+
+                    // 1.5. Show Climate Mode Badge if active
+                    if (result.climate_mode) {
+                        const climateBadge = '<div class="das-climate-badge">🌍 Climate Mode Active - Long-term forecast based on Cyprus seasonal averages</div>';
+                        contentArea.innerHTML = climateBadge + contentArea.innerHTML;
+                    }
 
                     // 2. Apply Living Background
                     applyLivingBackground(result.weather_condition);

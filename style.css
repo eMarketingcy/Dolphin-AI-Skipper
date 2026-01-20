@@ -1,6 +1,6 @@
 /**
- * Dolphin AI Skipper - Style Sheet v7.0.1
- * Modern 2026 UI/UX with Living Backgrounds, Interactive Maps & Seasickness Gauge
+ * Dolphin AI Skipper - Style Sheet v7.1.0
+ * Modern 2026 UI/UX with Living Backgrounds, Interactive Maps, Seasickness Gauge & Climate Mode
  * Design: Neomorphism + Glassmorphism Fusion
  */
 
@@ -641,6 +641,24 @@
     border-left: 3px solid var(--das-primary);
     font-size: 1rem;
     line-height: 1.7;
+}
+
+/* Climate Mode Badge */
+.das-climate-badge {
+    margin-bottom: 1rem;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.15), rgba(58, 123, 213, 0.15));
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid var(--das-primary);
+    border-left: 4px solid var(--das-primary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--das-primary);
+    font-weight: 600;
+    text-align: left;
+    animation: das-slide-down 0.5s ease-out;
+    box-shadow: 0 4px 12px rgba(0, 210, 255, 0.2);
 }
 
 /* Heartbeat / Pulse Animation for Loading */
