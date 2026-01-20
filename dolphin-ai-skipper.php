@@ -342,7 +342,7 @@ class DolphinAISkipper {
 
                 <!-- Seasickness Gauge -->
                 <div id="das-seasickness-gauge" class="das-gauge-container" style="display:none;">
-                    <div class="das-gauge-label">Seasickness Risk</div>
+                    <div class="das-gauge-label">⚓ Seasickness Risk Meter</div>
                     <div class="das-gauge">
                         <svg viewBox="0 0 200 120" class="das-gauge-svg">
                             <!-- Gauge Background Arc -->
@@ -361,6 +361,23 @@ class DolphinAISkipper {
                             <text id="das-gauge-value" x="100" y="85" text-anchor="middle" font-size="32" font-weight="bold" fill="#fff">0</text>
                             <text x="100" y="105" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.6)" id="das-gauge-status">CALM</text>
                         </svg>
+                    </div>
+                    <div id="das-gauge-advice" class="das-gauge-advice">
+                        Calculating risk factors...
+                    </div>
+                    <div class="das-gauge-legend">
+                        <div class="das-gauge-legend-item">
+                            <span class="das-gauge-dot" style="background: #00f260;"></span>
+                            <span>0-20: Calm</span>
+                        </div>
+                        <div class="das-gauge-legend-item">
+                            <span class="das-gauge-dot" style="background: #FFD700;"></span>
+                            <span>40-60: Moderate</span>
+                        </div>
+                        <div class="das-gauge-legend-item">
+                            <span class="das-gauge-dot" style="background: #ff5f6d;"></span>
+                            <span>80-100: Rough</span>
+                        </div>
                     </div>
                 </div>
 

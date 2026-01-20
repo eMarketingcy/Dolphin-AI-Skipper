@@ -449,6 +449,58 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Gauge Advice Section */
+.das-gauge-advice {
+    margin-top: 1rem;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border-left: 3px solid var(--das-primary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--das-text);
+    text-align: left;
+    animation: das-fade-in 0.6s ease-out 0.3s both;
+}
+
+/* Gauge Legend */
+.das-gauge-legend {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--das-glass-border);
+}
+
+.das-gauge-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--das-text-muted);
+    flex: 1;
+}
+
+.das-gauge-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+    flex-shrink: 0;
+}
+
+/* Enhanced Gauge Label */
+.das-gauge-label {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--das-primary);
+    margin-bottom: 1rem;
+    font-weight: 800;
+    text-align: center;
+}
+
 /* =========================================
    6. INTERACTIVE MAP (Leaflet.js)
    ========================================= */
