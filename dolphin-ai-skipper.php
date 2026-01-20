@@ -36,25 +36,27 @@ class DolphinAISkipper {
     // =========================================================================
     public function handle_analysis_request() {
         check_ajax_referer('das_nonce', 'nonce');
-        
+
         $route_id = intval($_POST['route_id']);
-        $user_date_str = sanitize_text_field($_POST['date']); // YYYY-MM-DDTHH:MM
-        
+        $user_date_str = sanitize_text_field($_POST['date']); // YYYY-MM-DDTHH:MM (for display only)
+
+        // Use UTC timestamp sent from JavaScript to avoid timezone issues
+        $user_ts = isset($_POST['timestamp']) ? intval($_POST['timestamp']) : strtotime($user_date_str);
+
         $lat = get_post_meta($route_id, 'latitude', true);
         $lon = get_post_meta($route_id, 'longitude', true);
         $owm_key = get_option('das_owm_key');
         $gemini_key = get_option('das_gemini_key');
 
-        if(!$owm_key || !$gemini_key || !$lat || !$lon) { 
-            wp_send_json_error(['message' => 'Configuration missing.']); 
+        if(!$owm_key || !$gemini_key || !$lat || !$lon) {
+            wp_send_json_error(['message' => 'Configuration missing.']);
         }
 
         // 1. Get the FULL 5-day forecast list
         $forecast_list = $this->get_forecast_list($lat, $lon, $owm_key);
         if(!$forecast_list) { wp_send_json_error(['message' => 'Weather satellites unavailable.']); }
 
-        // 2. Find User's Specific Slot
-        $user_ts = strtotime($user_date_str);
+        // 2. Find User's Specific Slot using UTC timestamp
         $target_weather = $this->find_closest_slot($forecast_list, $user_ts);
 
         // 3. Analyze & Find Alternative if needed
@@ -71,8 +73,8 @@ class DolphinAISkipper {
             $alternative = $this->find_best_alternative($forecast_list, $user_ts);
         }
 
-        // 4. Send everything to AI
-        $advice = $this->ask_gemini_smart($target_weather, $alternative, $user_date_str, $gemini_key);
+        // 4. Send everything to AI (pass UTC timestamp for correct formatting)
+        $advice = $this->ask_gemini_smart($target_weather, $alternative, $user_ts, $gemini_key);
 
         // 5. Prepare additional data for frontend features
         $weather_condition = strtolower($target_weather['weather'][0]['main']);
@@ -167,16 +169,18 @@ class DolphinAISkipper {
 
     // --- AI INTEGRATION ---
 
-    private function ask_gemini_smart($current, $alt, $user_date, $key) {
+    private function ask_gemini_smart($current, $alt, $user_timestamp, $key) {
         // Prepare Data for Prompt
         $c_desc = $current['weather'][0]['description'];
         $c_temp = round($current['main']['temp']);
         $c_wind = $current['wind']['speed'];
-        $c_date = date('d M H:i', strtotime($user_date));
+        // Format date from UTC timestamp (use gmdate to avoid timezone issues)
+        $c_date = gmdate('d M H:i', $user_timestamp);
 
         $alt_text = "No better alternative found nearby.";
         if ($alt) {
-            $a_date = date('d M H:i', $alt['dt']);
+            // Use gmdate for UTC consistency (OpenWeather API returns UTC timestamps)
+            $a_date = gmdate('d M H:i', $alt['dt']);
             $a_wind = $alt['wind']['speed'];
             $alt_text = "BETTER OPTION FOUND: $a_date (Wind: {$a_wind}m/s).";
         }

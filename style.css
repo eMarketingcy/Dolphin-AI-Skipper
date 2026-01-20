@@ -513,8 +513,21 @@
     gap: 6px;
     font-size: 0.8rem;
     color: var(--das-text-muted);
-    font-weight: 500;
+    font-weight: 600;
     flex: 1;
+}
+
+/* Color-coded legend items for better visibility */
+.das-gauge-legend-item:nth-child(1) {
+    color: #00f260; /* Green for Calm */
+}
+
+.das-gauge-legend-item:nth-child(2) {
+    color: #FFD700; /* Gold for Moderate */
+}
+
+.das-gauge-legend-item:nth-child(3) {
+    color: #ff5f6d; /* Red for Rough */
 }
 
 .das-gauge-dot {
