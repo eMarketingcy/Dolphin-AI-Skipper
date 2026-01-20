@@ -1,7 +1,8 @@
 /**
- * Dolphin AI Skipper - Main Script v7.0.0
+ * Dolphin AI Skipper - Main Script v7.0.1
  * Features: Voice AI, Interactive Maps, Living Backgrounds, Seasickness Gauge
  * Tech: Vanilla JS, Web Speech API, Leaflet.js
+ * v7.0.1: Fixed weather background not updating - added proper condition mapping
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -288,18 +289,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const weatherClasses = ['weather-sunny', 'weather-clear', 'weather-clouds', 'weather-rain', 'weather-drizzle', 'weather-thunderstorm', 'weather-storm', 'weather-sunset'];
             weatherClasses.forEach(cls => glassCard.classList.remove(cls));
 
+            // Map OpenWeather API conditions to our supported backgrounds
+            const weatherMap = {
+                'clear': 'clear',
+                'clouds': 'clouds',
+                'rain': 'rain',
+                'drizzle': 'drizzle',
+                'thunderstorm': 'thunderstorm',
+                // Map unsupported conditions to closest equivalents
+                'snow': 'clouds',           // Snowy weather → cloudy background
+                'mist': 'clouds',           // Atmospheric conditions → cloudy
+                'smoke': 'clouds',
+                'haze': 'clouds',
+                'dust': 'clouds',
+                'fog': 'clouds',
+                'sand': 'clouds',
+                'ash': 'clouds',
+                'squall': 'storm',          // Severe weather → storm
+                'tornado': 'storm'
+            };
+
+            // Normalize and map the weather condition
+            const normalizedCondition = weatherCondition ? weatherCondition.toLowerCase() : 'clear';
+            const mappedCondition = weatherMap[normalizedCondition] || 'clear';
+
             // Determine time of day for sunset detection
             const hour = new Date().getHours();
             const isSunset = (hour >= 17 && hour <= 19) || (hour >= 5 && hour <= 7);
 
             // Apply appropriate background class
-            if (isSunset && (weatherCondition === 'clear' || weatherCondition === 'sunny')) {
+            if (isSunset && mappedCondition === 'clear') {
                 glassCard.classList.add('weather-sunset');
             } else {
-                glassCard.classList.add(`weather-${weatherCondition}`);
+                glassCard.classList.add(`weather-${mappedCondition}`);
             }
 
-            console.log('Applied Living Background:', weatherCondition);
+            console.log('Applied Living Background:', weatherCondition, '→ mapped to:', mappedCondition);
         }
 
         // =============================
