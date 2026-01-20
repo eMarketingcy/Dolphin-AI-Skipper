@@ -1,25 +1,41 @@
 /**
- * Dolphin AI Skipper - Style Sheet
- * Approach: Mobile-First, Modern Glassmorphism (2026 Design)
+ * Dolphin AI Skipper - Style Sheet v7.0.0
+ * Modern 2026 UI/UX with Living Backgrounds, Interactive Maps & Seasickness Gauge
+ * Design: Neomorphism + Glassmorphism Fusion
  */
 
 :root {
-    /* Color Palette - Cyprus Sea Theme */
+    /* Base Color Palette - Cyprus Sea Theme */
     --das-primary: #00d2ff;       /* Bright Cyan */
     --das-secondary: #3a7bd5;     /* Deep Ocean Blue */
     --das-accent: #00f260;        /* Success Green */
     --das-danger: #ff5f6d;        /* Error Red */
-    
+    --das-warning: #FFD700;       /* Gold */
+
+    /* Living Background Colors (Weather-Based) */
+    --das-bg-sunny: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --das-bg-clear: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    --das-bg-cloudy: linear-gradient(135deg, #525252 0%, #3d3d3d 100%);
+    --das-bg-storm: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    --das-bg-rain: linear-gradient(135deg, #4b79a1 0%, #283e51 100%);
+    --das-bg-sunset: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+    --das-bg-default: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+
     /* Glassmorphism Variables */
-    --das-glass-bg: rgba(15, 23, 42, 0.85); /* Dark blue-grey base */
+    --das-glass-bg: rgba(15, 23, 42, 0.85);
     --das-glass-border: rgba(255, 255, 255, 0.12);
     --das-text: #ffffff;
     --das-text-muted: rgba(255, 255, 255, 0.7);
-    
+
     /* Spacing & Layout */
-    --das-radius: 20px;
-    --das-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    --das-radius: 24px;
+    --das-radius-sm: 16px;
+    --das-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    --das-shadow-hover: 0 30px 80px rgba(0, 0, 0, 0.8);
     --das-z-index: 99999;
+
+    /* Animations */
+    --das-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* =========================================
@@ -27,38 +43,56 @@
    ========================================= */
 #das-widget-toggle {
     position: fixed;
-    bottom: 25px;
-    right: 25px;
+    bottom: 30px;
+    right: 30px;
     z-index: var(--das-z-index);
-    
+
     display: flex;
     align-items: center;
-    gap: 12px;
-    
+    gap: 14px;
+
     background: linear-gradient(135deg, var(--das-secondary), var(--das-primary));
     border: none;
     border-radius: 50px;
-    padding: 14px 26px;
-    
+    padding: 16px 30px;
+
     color: white;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 700;
+    font-size: 1.05rem;
     letter-spacing: 0.5px;
-    
-    box-shadow: 0 10px 25px rgba(0, 210, 255, 0.3);
+
+    box-shadow: 0 12px 30px rgba(0, 210, 255, 0.4), 0 0 0 0 rgba(0, 210, 255, 0.5);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: var(--das-transition);
+    animation: das-pulse-ring 2s infinite;
 }
 
 #das-widget-toggle:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 15px 35px rgba(0, 210, 255, 0.5);
+    transform: translateY(-6px) scale(1.08);
+    box-shadow: 0 20px 45px rgba(0, 210, 255, 0.6);
+}
+
+@keyframes das-pulse-ring {
+    0% {
+        box-shadow: 0 12px 30px rgba(0, 210, 255, 0.4), 0 0 0 0 rgba(0, 210, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 12px 30px rgba(0, 210, 255, 0.4), 0 0 0 15px rgba(0, 210, 255, 0);
+    }
+    100% {
+        box-shadow: 0 12px 30px rgba(0, 210, 255, 0.4), 0 0 0 0 rgba(0, 210, 255, 0);
+    }
 }
 
 .das-icon {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.das-label {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 /* =========================================
@@ -66,21 +100,21 @@
    ========================================= */
 .das-wrapper {
     position: fixed;
-    bottom: 100px;
-    right: 25px;
-    width: 380px;
+    bottom: 110px;
+    right: 30px;
+    width: 420px;
     max-width: 90vw;
     z-index: 99998;
-    
-    font-family: 'Inter', sans-serif;
-    
+
+    font-family: 'Inter', -apple-system, sans-serif;
+
     /* Initial State: Hidden & Slightly down */
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    transform: translateY(40px) scale(0.92);
     pointer-events: none;
-    
+
     /* Smooth Spring Animation */
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--das-transition);
 }
 
 /* State: Open */
@@ -91,21 +125,70 @@
 }
 
 /* =========================================
-   3. GLASS CARD DESIGN
+   3. GLASS CARD DESIGN (Living Background)
    ========================================= */
 .das-glass-card {
-    background: var(--das-glass-bg);
+    background: var(--das-bg-default);
     /* The Blur Effect */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+
     border: 1px solid var(--das-glass-border);
     border-radius: var(--das-radius);
     padding: 2rem;
-    
+
     box-shadow: var(--das-shadow);
     color: var(--das-text);
     overflow: hidden;
+    position: relative;
+
+    transition: background 0.8s ease, box-shadow 0.3s ease;
+}
+
+/* Living Background States */
+.das-glass-card.weather-sunny,
+.das-glass-card.weather-clear {
+    background: var(--das-bg-clear);
+}
+
+.das-glass-card.weather-clouds {
+    background: var(--das-bg-cloudy);
+}
+
+.das-glass-card.weather-rain,
+.das-glass-card.weather-drizzle {
+    background: var(--das-bg-rain);
+}
+
+.das-glass-card.weather-thunderstorm,
+.das-glass-card.weather-storm {
+    background: var(--das-bg-storm);
+}
+
+.das-glass-card.weather-sunset {
+    background: var(--das-bg-sunset);
+}
+
+.das-glass-card:hover {
+    box-shadow: var(--das-shadow-hover);
+}
+
+/* Ambient Light Effect */
+.das-glass-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.6s;
+    pointer-events: none;
+}
+
+.das-glass-card:hover::before {
+    opacity: 1;
 }
 
 /* Header Section */
@@ -120,31 +203,91 @@
 
 .das-header h2 {
     margin: 0;
-    font-size: 1.4rem;
-    font-weight: 700;
-    /* Gradient Text */
-    background: linear-gradient(to right, #ffffff, #a5f3fc);
+    font-size: 1.5rem;
+    font-weight: 800;
+    /* Gradient Text with Animation */
+    background: linear-gradient(90deg, #ffffff, #a5f3fc, #ffffff);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: das-shimmer 3s linear infinite;
+}
+
+@keyframes das-shimmer {
+    to { background-position: 200% center; }
+}
+
+.das-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Voice Button */
+.das-voice-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    line-height: 1;
+}
+
+.das-voice-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    transform: scale(1.1);
+}
+
+.das-voice-btn.listening {
+    background: linear-gradient(135deg, #ff5f6d, #ff3f50);
+    animation: das-voice-pulse 1s infinite;
+}
+
+@keyframes das-voice-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* Voice Feedback */
+.das-voice-feedback {
+    background: rgba(255, 95, 109, 0.1);
+    border: 1px solid rgba(255, 95, 109, 0.3);
+    border-radius: var(--das-radius-sm);
+    padding: 12px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--das-danger);
 }
 
 #das-close-btn {
     background: transparent;
     border: none;
     color: var(--das-text-muted);
-    font-size: 1.8rem;
+    font-size: 2rem;
     line-height: 1;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
     padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #das-close-btn:hover {
     color: #fff;
+    background: rgba(255, 95, 109, 0.2);
+    border-radius: 8px;
 }
 
 /* =========================================
-   4. FORM ELEMENTS
+   4. FORM ELEMENTS (2026 Modern Design)
    ========================================= */
 .das-input-group {
     margin-bottom: 1.25rem;
@@ -154,120 +297,304 @@
     display: block;
     font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     margin-bottom: 0.5rem;
     color: var(--das-text-muted);
+    font-weight: 600;
 }
 
 .das-input-group select,
 .das-input-group input {
     width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
+    padding: 14px 18px;
+    border-radius: var(--das-radius-sm);
     border: 1px solid var(--das-glass-border);
-    
-    /* Dark translucent background for inputs */
-    background: rgba(0, 0, 0, 0.3);
+
+    /* Dark translucent background with gradient */
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
     color: #fff;
     font-size: 1rem;
+    font-weight: 500;
     outline: none;
-    transition: border-color 0.2s, background 0.2s;
-    
+    transition: all 0.3s ease;
+
     /* Remove default appearance */
     appearance: none;
     -webkit-appearance: none;
 }
 
-/* Add custom arrow for select */
+/* Add custom arrow for select with modern design */
 .das-input-group select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2300d2ff' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
+    background-position: right 14px center;
+    background-size: 24px;
+    padding-right: 45px;
 }
 
 .das-input-group select:focus,
 .das-input-group input:focus {
     border-color: var(--das-primary);
-    background: rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4));
+    box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.1);
 }
 
-/* The Action Button */
+/* The Action Button (Neon Glow Effect) */
 .das-btn-glow {
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     margin-top: 0.5rem;
     border: none;
-    border-radius: 12px;
-    
+    border-radius: var(--das-radius-sm);
+
     background: linear-gradient(135deg, var(--das-primary), var(--das-secondary));
     color: white;
-    font-weight: 700;
-    font-size: 1.05rem;
-    
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Button Hover Animation */
+.das-btn-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.das-btn-glow:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .das-btn-glow:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 210, 255, 0.6);
+}
+
+.das-btn-glow:active {
+    transform: translateY(-1px);
 }
 
 .das-btn-glow:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    background: #555;
+    background: linear-gradient(135deg, #555, #666);
 }
 
 /* =========================================
-   5. RESULTS AREA & ANIMATIONS
+   5. SEASICKNESS GAUGE (Speedometer)
+   ========================================= */
+.das-gauge-container {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--das-radius-sm);
+    border: 1px solid var(--das-glass-border);
+    text-align: center;
+    animation: das-slide-down 0.6s ease-out;
+}
+
+.das-gauge-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--das-text-muted);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.das-gauge {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+}
+
+.das-gauge-svg {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 12px rgba(0, 210, 255, 0.3));
+}
+
+#das-gauge-progress {
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+#das-gauge-value {
+    animation: das-number-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes das-number-pop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes das-slide-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   6. INTERACTIVE MAP (Leaflet.js)
+   ========================================= */
+.das-map-container {
+    margin-top: 1.5rem;
+    border-radius: var(--das-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--das-glass-border);
+    background: rgba(0, 0, 0, 0.3);
+    animation: das-slide-down 0.5s ease-out;
+}
+
+.das-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid var(--das-glass-border);
+}
+
+#das-map-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--das-primary);
+}
+
+.das-map-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--das-text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+
+.das-map-close-btn:hover {
+    color: var(--das-danger);
+}
+
+.das-map {
+    width: 100%;
+    height: 300px;
+    background: #1a1a2e;
+}
+
+/* Leaflet Map Customization */
+.leaflet-container {
+    font-family: 'Inter', sans-serif;
+}
+
+.leaflet-popup-content-wrapper {
+    background: rgba(15, 23, 42, 0.95);
+    color: white;
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.leaflet-popup-tip {
+    background: rgba(15, 23, 42, 0.95);
+}
+
+/* =========================================
+   7. RESULTS AREA & ANIMATIONS
    ========================================= */
 .das-result-area {
     margin-top: 1.5rem;
-    padding-top: 1rem;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--das-glass-border);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    animation: das-fade-in 0.5s ease-out;
+    font-size: 1rem;
+    line-height: 1.7;
+    animation: das-fade-in 0.6s ease-out;
 }
 
-.das-result-area b {
+.das-result-area strong {
     color: var(--das-primary);
+    font-weight: 700;
+}
+
+.das-content {
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: var(--das-radius-sm);
+    border-left: 3px solid var(--das-primary);
 }
 
 /* Heartbeat / Pulse Animation for Loading */
 .das-pulse {
     display: inline-block;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--das-primary);
     animation: das-pulse-anim 1.5s infinite ease-in-out;
 }
 
 @keyframes das-pulse-anim {
-    0% { opacity: 0.5; }
+    0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
-    100% { opacity: 0.5; }
 }
 
 @keyframes das-fade-in {
-    from { opacity: 0; transform: translateY(5px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 /* Admin Tester Feedback Colors */
-.das-success { color: var(--das-accent); font-weight: bold; }
-.das-error { color: var(--das-danger); font-weight: bold; }
+.das-success {
+    color: var(--das-accent);
+    font-weight: 700;
+}
+
+.das-error {
+    color: var(--das-danger);
+    font-weight: 700;
+}
 
 /* =========================================
-   6. MOBILE RESPONSIVENESS (Bottom Sheet)
+   8. MOBILE RESPONSIVENESS (2026 Standards)
    ========================================= */
+@media (max-width: 768px) {
+    #das-widget-toggle {
+        bottom: 25px;
+        right: 25px;
+        padding: 14px 24px;
+        font-size: 0.95rem;
+    }
+
+    .das-wrapper {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
 @media (max-width: 480px) {
     #das-widget-toggle {
         bottom: 20px;
         right: 20px;
         padding: 12px 20px;
+        font-size: 0.9rem;
+        gap: 10px;
+    }
+
+    .das-label {
+        display: none; /* Hide label on very small screens */
     }
 
     .das-wrapper {
@@ -276,25 +603,69 @@
         bottom: 0;
         width: 100%;
         max-width: 100%;
-        
-        /* Slide up from bottom */
+
+        /* Slide up from bottom (Bottom Sheet Style) */
         transform: translateY(100%);
-        border-radius: 24px 24px 0 0;
     }
-    
+
     .das-wrapper.is-open {
         transform: translateY(0);
     }
 
     .das-glass-card {
-        border-radius: 24px 24px 0 0;
+        border-radius: 28px 28px 0 0;
         border-bottom: none;
         border-left: none;
         border-right: none;
-        padding: 1.5rem 1.5rem 3rem 1.5rem; /* Extra padding at bottom for safe area */
+        padding: 1.5rem;
+        padding-bottom: 2.5rem; /* Safe area for notched phones */
+        max-height: 85vh;
+        overflow-y: auto;
     }
-    
+
     .das-header h2 {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
+    }
+
+    .das-map {
+        height: 250px;
+    }
+
+    /* Add swipe indicator */
+    .das-glass-card::after {
+        content: '';
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+    }
+}
+
+/* Dark Mode Auto-Detection (2026 Best Practice) */
+@media (prefers-color-scheme: light) {
+    :root {
+        --das-glass-bg: rgba(255, 255, 255, 0.85);
+        --das-text: #1a1a2e;
+        --das-text-muted: rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Reduced Motion (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .das-glass-card {
+        border: 2px solid var(--das-primary);
     }
 }
