@@ -234,6 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('action', 'das_check_sailing');
             formData.append('route_id', routeId);
             formData.append('date', dateVal);
+
+            // Convert local datetime to UTC timestamp to avoid timezone issues
+            const selectedDate = new Date(dateVal);
+            const utcTimestamp = Math.floor(selectedDate.getTime() / 1000); // Unix timestamp in seconds
+            formData.append('timestamp', utcTimestamp);
+
             formData.append('nonce', das_vars.nonce);
 
             try {
