@@ -1,46 +1,60 @@
-jQuery(document).ready(function($) {
-    $('#das-form').on('submit', function(e) {
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const form = document.getElementById('das-form');
+    const resultArea = document.getElementById('das-result');
+    const contentArea = resultArea.querySelector('.das-content');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        let route = $('#das-route').val();
-        let date = $('#das-date').val();
-        let $btn = $(this).find('button');
-        let $result = $('#das-result');
-        let $content = $result.find('.das-content');
+        const routeId = document.getElementById('das-route').value;
+        const dateVal = document.getElementById('das-date').value;
 
-        if(!route || !date) {
+        if (!routeId || !dateVal) {
             alert('Please select both a route and a date.');
             return;
         }
 
-        // UI Loading State
-        $btn.text('Asking the Captain...').prop('disabled', true);
-        $result.show();
-        $content.html('Checking satellite weather data...');
+        // 1. UI Loading State
+        submitBtn.textContent = 'Asking the Captain...';
+        submitBtn.disabled = true;
+        resultArea.style.display = 'block';
+        contentArea.innerHTML = '<span class="das-pulse">Checking satellite weather data...</span>';
 
-        $.ajax({
-            url: das_vars.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'das_check_sailing',
-                route_id: route,
-                date: date,
-                nonce: das_vars.nonce
-            },
-            success: function(response) {
-                if(response.success) {
-                    // Typewriter effect could be added here for extra "AI" feel
-                    $content.html(response.data.analysis);
-                } else {
-                    $content.html('Error connecting to the weather station.');
-                }
-            },
-            error: function() {
-                $content.html('Communication error. Please try again.');
-            },
-            complete: function() {
-                $btn.text('Analyze Conditions').prop('disabled', false);
+        // 2. Prepare Data (FormData is the modern way to handle POSTs)
+        const formData = new FormData();
+        formData.append('action', 'das_check_sailing');
+        formData.append('route_id', routeId);
+        formData.append('date', dateVal);
+        formData.append('nonce', das_vars.nonce);
+
+        try {
+            // 3. The Fetch API (Modern replacement for $.ajax)
+            const response = await fetch(das_vars.ajax_url, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Success: Inject the HTML from the PHP response
+                contentArea.innerHTML = data.data.analysis;
+            } else {
+                // Logic Error (e.g., missing coordinates)
+                contentArea.innerHTML = `<span style="color:#ff6b6b">Error: ${data.data.message}</span>`;
             }
-        });
+
+        } catch (error) {
+            console.error('DAS Plugin Error:', error);
+            contentArea.innerHTML = 'Communication error with the main server.';
+        } finally {
+            // 4. Reset UI
+            submitBtn.textContent = 'Analyze Conditions';
+            submitBtn.disabled = false;
+        }
     });
 });
