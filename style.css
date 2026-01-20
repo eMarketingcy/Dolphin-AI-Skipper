@@ -1,182 +1,62 @@
 :root {
-    --das-primary: #00c6ff;
-    --das-secondary: #0072ff;
-    --das-glass-bg: rgba(20, 20, 30, 0.75);
-    --das-glass-border: rgba(255, 255, 255, 0.15);
+    --das-primary: #00d2ff;
+    --das-secondary: #3a7bd5;
+    --das-glass-bg: rgba(15, 23, 42, 0.85); /* Darker for better contrast */
+    --das-glass-border: rgba(255, 255, 255, 0.1);
     --das-text: #ffffff;
-    --das-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
-/* 1. FLOATING TOGGLE BUTTON */
 #das-widget-toggle {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 99999;
+    position: fixed; bottom: 25px; right: 25px; z-index: 99999;
     background: linear-gradient(135deg, var(--das-secondary), var(--das-primary));
-    border: none;
-    border-radius: 50px;
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 5px 20px rgba(0, 198, 255, 0.4);
-    cursor: pointer;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    color: white;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
+    border: none; border-radius: 50px; padding: 12px 24px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 10px 25px rgba(0, 210, 255, 0.3);
+    cursor: pointer; transition: transform 0.2s;
+    color: white; font-family: 'Inter', sans-serif; font-weight: 600;
 }
+#das-widget-toggle:hover { transform: scale(1.05); }
 
-#das-widget-toggle:hover {
-    transform: scale(1.05) translateY(-2px);
-}
-
-.das-icon { font-size: 1.2rem; }
-
-/* 2. THE CONTAINER (Hidden by default) */
 .das-wrapper {
-    position: fixed;
-    bottom: 90px;
-    right: 25px;
-    width: 380px;
-    z-index: 99998;
-    font-family: 'Inter', sans-serif;
-    
-    /* Animation Initial State */
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    pointer-events: none;
+    position: fixed; bottom: 90px; right: 25px; width: 360px; z-index: 99998;
+    opacity: 0; transform: translateY(20px); pointer-events: none;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Inter', sans-serif;
 }
+.das-wrapper.is-open { opacity: 1; transform: translateY(0); pointer-events: all; }
 
-/* Visible State (Toggled by JS) */
-.das-wrapper.is-open {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: all;
-}
-
-/* 3. GLASSMORPHISM CARD */
 .das-glass-card {
     background: var(--das-glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--das-glass-border);
-    border-radius: 24px;
-    padding: 1.5rem;
-    box-shadow: var(--das-shadow);
-    color: var(--das-text);
-    overflow: hidden;
+    border-radius: 20px; padding: 1.5rem; color: #fff;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
-.das-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
+.das-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+.das-header h2 { margin:0; font-size: 1.2rem; background: -webkit-linear-gradient(#fff, #99f6e4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#das-close-btn { background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer; }
 
-.das-header h2 {
-    font-size: 1.25rem;
-    margin: 0;
-    background: linear-gradient(to right, #fff, #a5f3fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-#das-close-btn {
-    background: transparent;
-    border: none;
-    color: rgba(255,255,255,0.5);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-}
-
-/* INPUTS */
 .das-input-group { margin-bottom: 1rem; }
-
-.das-input-group label {
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 0.4rem;
-    color: rgba(255,255,255,0.7);
+.das-input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.8; }
+.das-input-group select, .das-input-group input {
+    width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.4); color: #fff; outline: none;
 }
 
-.das-input-group select, 
-.das-input-group input {
-    width: 100%;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--das-glass-border);
-    border-radius: 12px;
-    padding: 10px;
-    color: white;
-    font-size: 0.95rem;
-    outline: none;
-}
-
-/* BUTTON */
 .das-btn-glow {
-    width: 100%;
-    padding: 12px;
-    margin-top: 0.5rem;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--das-primary), var(--das-secondary));
-    color: white;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.3s;
+    width: 100%; padding: 12px; border: none; border-radius: 12px;
+    background: linear-gradient(to right, var(--das-secondary), var(--das-primary));
+    color: white; font-weight: bold; cursor: pointer;
 }
+.das-btn-glow:disabled { opacity: 0.7; }
 
-.das-btn-glow:disabled { opacity: 0.6; cursor: wait; }
+.das-result-area { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); line-height: 1.5; font-size: 0.95rem; }
+.das-pulse { animation: das-pulse-anim 1.5s infinite; color: var(--das-primary); }
+@keyframes das-pulse-anim { 0% {opacity:0.5;} 50% {opacity:1;} 100% {opacity:0.5;} }
 
-/* 4. RESULTS & PULSE ANIMATION */
-.das-result-area {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--das-glass-border);
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
-.das-pulse {
-    display: inline-block;
-    animation: pulse 1.5s infinite ease-in-out;
-    color: var(--das-primary);
-    font-weight: bold;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 1; }
-    100% { opacity: 0.4; }
-}
-
-/* 5. MOBILE RESPONSIVE (Bottom Sheet Style) */
 @media (max-width: 480px) {
-    .das-wrapper {
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        transform: translateY(100%); /* Slide from bottom */
-        border-radius: 24px 24px 0 0;
-    }
-    
-    .das-wrapper.is-open {
-        transform: translateY(0);
-    }
-
-    .das-glass-card {
-        border-radius: 24px 24px 0 0;
-        border-bottom: none;
-        padding-bottom: 40px; /* Safe area for phones */
-    }
-    
-    #das-widget-toggle {
-        bottom: 20px;
-        right: 20px;
-    }
+    .das-wrapper { width: 100%; right: 0; bottom: 0; border-radius: 20px 20px 0 0; transform: translateY(100%); }
+    .das-glass-card { border-radius: 20px 20px 0 0; border-bottom: none; padding-bottom: 40px; }
+    .das-wrapper.is-open { transform: translateY(0); }
 }
