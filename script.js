@@ -1,10 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    // Selectors
+    const toggleBtn = document.getElementById('das-widget-toggle');
+    const closeBtn = document.getElementById('das-close-btn');
+    const wrapper = document.getElementById('das-interface');
+    
     const form = document.getElementById('das-form');
     const resultArea = document.getElementById('das-result');
     const contentArea = resultArea.querySelector('.das-content');
     const submitBtn = form.querySelector('button[type="submit"]');
 
+    // 1. Toggle Logic (Open/Close)
+    function toggleWidget() {
+        wrapper.classList.toggle('is-open');
+    }
+
+    toggleBtn.addEventListener('click', toggleWidget);
+    closeBtn.addEventListener('click', toggleWidget);
+
+    // Close if clicking outside the card
+    document.addEventListener('click', (e) => {
+        if (wrapper.classList.contains('is-open') && 
+            !wrapper.contains(e.target) && 
+            !toggleBtn.contains(e.target)) {
+            wrapper.classList.remove('is-open');
+        }
+    });
+
+    // 2. Form Logic (Same as before, updated for widget)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -12,17 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateVal = document.getElementById('das-date').value;
 
         if (!routeId || !dateVal) {
-            alert('Please select both a route and a date.');
+            alert('Please select route & date.');
             return;
         }
 
-        // 1. UI Loading State
-        submitBtn.textContent = 'Asking the Captain...';
+        submitBtn.innerHTML = 'Connecting to Satellite...';
         submitBtn.disabled = true;
         resultArea.style.display = 'block';
-        contentArea.innerHTML = '<span class="das-pulse">Checking satellite weather data...</span>';
+        contentArea.innerHTML = '<span class="das-pulse">Analyzing wind & wave patterns...</span>';
 
-        // 2. Prepare Data (FormData is the modern way to handle POSTs)
         const formData = new FormData();
         formData.append('action', 'das_check_sailing');
         formData.append('route_id', routeId);
@@ -30,30 +51,25 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('nonce', das_vars.nonce);
 
         try {
-            // 3. The Fetch API (Modern replacement for $.ajax)
             const response = await fetch(das_vars.ajax_url, {
                 method: 'POST',
                 body: formData
             });
 
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error('Network error');
 
             const data = await response.json();
 
             if (data.success) {
-                // Success: Inject the HTML from the PHP response
                 contentArea.innerHTML = data.data.analysis;
             } else {
-                // Logic Error (e.g., missing coordinates)
-                contentArea.innerHTML = `<span style="color:#ff6b6b">Error: ${data.data.message}</span>`;
+                contentArea.innerHTML = `<span style="color:#ff6b6b">${data.data.message}</span>`;
             }
 
         } catch (error) {
-            console.error('DAS Plugin Error:', error);
-            contentArea.innerHTML = 'Communication error with the main server.';
+            contentArea.innerHTML = 'Captain is currently offline. Please try again.';
         } finally {
-            // 4. Reset UI
-            submitBtn.textContent = 'Analyze Conditions';
+            submitBtn.textContent = 'Ask AI Captain';
             submitBtn.disabled = false;
         }
     });
