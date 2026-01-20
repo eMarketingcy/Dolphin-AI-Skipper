@@ -305,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const gaugeProgress = document.getElementById('das-gauge-progress');
             const gaugeValue = document.getElementById('das-gauge-value');
             const gaugeStatus = document.getElementById('das-gauge-status');
+            const gaugeAdvice = document.getElementById('das-gauge-advice');
 
             // Arc length is approximately 251.2 units (half circle)
             const maxDash = 251.2;
@@ -315,17 +316,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 gaugeProgress.style.strokeDashoffset = offset;
                 gaugeValue.textContent = Math.round(riskLevel);
 
-                // Update status text
+                // Update status text and advice based on risk level
+                let statusText, adviceText, emoji;
+
                 if (riskLevel < 20) {
-                    gaugeStatus.textContent = 'CALM SEAS';
+                    statusText = 'CALM SEAS';
+                    emoji = '😊';
+                    adviceText = 'Perfect conditions for sailing. Enjoy your trip!';
                 } else if (riskLevel < 40) {
-                    gaugeStatus.textContent = 'SMOOTH';
+                    statusText = 'SMOOTH';
+                    emoji = '🙂';
+                    adviceText = 'Good conditions. Minimal discomfort expected.';
                 } else if (riskLevel < 60) {
-                    gaugeStatus.textContent = 'MODERATE';
+                    statusText = 'MODERATE';
+                    emoji = '😐';
+                    adviceText = 'Some may feel queasy. Consider medication if prone to seasickness.';
                 } else if (riskLevel < 80) {
-                    gaugeStatus.textContent = 'CHOPPY';
+                    statusText = 'CHOPPY';
+                    emoji = '😰';
+                    adviceText = 'Rough conditions. Seasickness likely for sensitive individuals.';
                 } else {
-                    gaugeStatus.textContent = 'ROUGH';
+                    statusText = 'ROUGH';
+                    emoji = '🤢';
+                    adviceText = 'Very rough seas. High risk of seasickness. Caution advised!';
+                }
+
+                gaugeStatus.textContent = statusText;
+
+                // Update advice text if element exists
+                if (gaugeAdvice) {
+                    gaugeAdvice.innerHTML = `<span style="font-size: 1.5rem; margin-right: 8px;">${emoji}</span>${adviceText}`;
                 }
             }, 100);
 
