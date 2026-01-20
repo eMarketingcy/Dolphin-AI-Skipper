@@ -45,13 +45,17 @@ class DolphinAISkipper {
     // 3. FRONTEND: ASSETS & UI
     // -------------------------------------------------------------------------
     public function enqueue_assets() {
-        wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css');
-        wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', ['jquery'], '1.0', true);
-        wp_localize_script('das-script', 'das_vars', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('das_nonce')
-        ]);
-    }
+    wp_enqueue_style('das-style', plugin_dir_url(__FILE__) . 'style.css');
+    
+    // Notice the empty array [] instead of ['jquery']. 
+    // This script now loads without waiting for jQuery.
+    wp_enqueue_script('das-script', plugin_dir_url(__FILE__) . 'script.js', [], '2.0', true);
+    
+    wp_localize_script('das-script', 'das_vars', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('das_nonce')
+    ]);
+}
 
     public function render_ui() {
         $routes = get_posts(['post_type' => 'safari_route', 'numberposts' => -1]);
